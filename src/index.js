@@ -92,7 +92,7 @@ function handleCategories() {
 
   page_1.eachRow(function (row, rowNumber) {
     if (row.values.length === 2) {
-      if (counter > 1) {
+      if (counter >= 1) {
         if (categories.length) {
           let rowItem = {};
           rowItem.name = row.values[1];
@@ -110,9 +110,6 @@ function handleCategories() {
           counter = 0;
         }
       }
-      // while (row.values.length === 2) {
-      //   page_1.spliceRows(rowNumber, 1);
-      // }
     }
     counter++;
 
@@ -128,9 +125,15 @@ function handleCategories() {
     }
   });
 
+  page_1.eachRow(function (row, rowNumber) {
+    while (row.values.length === 2) {
+      page_1.spliceRows(rowNumber, 1);
+    }
+  });
+
   // downloadsheet(workbook_cat);
-  console.log(categories);
-  console.log(categoriesFilter);
+  // console.log(categories);
+  // console.log(categoriesFilter);
 
   assignCategories(categoriesFilter);
 }
@@ -148,7 +151,7 @@ function assignCategories(categories) {
   }
 
   worksheet_cat.spliceColumns(1, 0, categories_final);
-  console.log(categories_final);
+  // console.log(categories_final);
 
   downloadsheet(workbook_cat);
 }
