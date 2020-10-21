@@ -1,34 +1,44 @@
+// Grupo Ya Quedó.
+// Developers: Daniel Dorantes García, Valeria Gomez
+
+// lIBRARIES
+// --- Exceljs:   https://github.com/exceljs/exceljs
 import { Workbook } from "exceljs";
 import "exceljs/dist/exceljs.min.js";
 import "./styles.css";
-// WORKSHEET PARA AÑADIR MARCA Y SUBMARCAS
-const workbook = new Workbook();
-workbook.creator = "Daniel";
-// WORKSHEET PARA CATEGORIAS
-let workbook_cat = new Workbook();
-workbook_cat.creator = "workbook_categorias";
 
-let inputWorksheet = document.querySelector("#myexcel");
-document.querySelector("#SendButton").addEventListener("click", function () {
-  getNames();
-});
-
-let inputCategorias = document.querySelector("#excelcategoria");
-
+// Global variables
 // Variables GLOBALES para la insercion de marca y submarca.
 let nombre_de_marca = "";
 let submarcas = [];
+// Worksheet instance
+const workbook = new Workbook();
+workbook.creator = "Daniel";
+// let workbook_cat = new Workbook();
+// workbook_cat.creator = "workbook_categorias";
 
-function getNames() {
-  console.log("fired");
+let inputWorksheet = document.querySelector("#excelInput");
+document.querySelector("#SendButton").addEventListener("click", function () {
   nombre_de_marca = document.getElementById("distribuidor").value;
-  var submarcas_raw = document.getElementById("fabricantes").value;
-  submarcas = submarcas_raw.split(",");
-  console.log(submarcas);
-  handleWorksheets();
+  // first we added the categories.
+  // CallToMethod
+  // then we add 'Submarca' and 'Fabricante'
+  addFabricanteSubmarca();
+});
+
+// Method to add 'Submarca' and 'Fabricante' to all worksheets.
+function addFabricanteSubmarca() {
+  let index = 0;
+  // Iterate over every workbook's worksheet.
+  for (let j = 1; j <= workbook.worksheets.length; j++) {
+    fill_new_columns(j, index);
+    index++;
+  }
+  // Call to add Categories
+  //
 }
 
-// Function para ingresar las columnas al nuevo excel/
+// Function para ingresar las columnas al nuevo excel
 function fill_new_columns(page, pos) {
   let marca = ["Marca"];
   let submarca = ["Submarca"];
@@ -37,45 +47,21 @@ function fill_new_columns(page, pos) {
     marca.push(nombre_de_marca);
     submarca.push(submarcas[pos]);
   }
-
   // Agrego la nueva columna 'newColumnValues'
   workbook.getWorksheet(page).spliceColumns(1, 0, marca, submarca);
 }
 
-// Manje los worksheets una vez asignados.
-function handleWorksheets() {
-  let index = 0;
-  console.log("Work pages: " + workbook.worksheets.length);
-
-  for (let j = 1; j <= workbook.worksheets.length; j++) {
-    fill_new_columns(j, index);
-    index++;
-  }
-
-  // Cuando termina descargo el excel
-  downloadsheet();
-}
-
-// Function para descargar el xlsx como respuesta on client.
-function downloadsheet(workbook_instance) {
-  workbook_instance.xlsx.writeBuffer().then(function (data) {
-    let blob = new Blob([data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    });
-    let blobURL = URL.createObjectURL(blob);
-    let link = document.querySelector("#downloadLinkId");
-    link.download = "Excel_modificado.xlsx";
-    link.href = blobURL;
-  });
-}
-
 // obtener el spreedsheet
-function handleFile() {
+function loadExcel() {
   const arryBuffer = new Response(this.files[0]).arrayBuffer();
   arryBuffer.then(function (data) {
     // worksheetGlobal = 3;
     workbook.xlsx.load(data).then(function () {
       alert("Work sheet cargado con éxito");
+      workbook.worksheets.forEach((element) => {
+        submarcas.push(element.name);
+      });
+      // console.log(submarcas);
     });
   });
 }
@@ -177,10 +163,24 @@ function loadWorksheetCategories() {
     // worksheetGlobal = 3;
     workbook_cat.xlsx.load(data).then(function () {
       alert("Work sheet categorías loaded");
-      handleCategories();
+      // mOVER ESTE METODO AL SEGUNDO PLANO.
+      // handleCategories();
     });
   });
 }
 
-inputWorksheet.addEventListener("change", handleFile, false);
-inputCategorias.addEventListener("change", loadWorksheetCategories, false);
+// download final worksheet.
+function downloadsheet(workbook_instance) {
+  workbook_instance.xlsx.writeBuffer().then(function (data) {
+    let blob = new Blob([data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    let blobURL = URL.createObjectURL(blob);
+    let link = document.querySelector("#downloadLinkId");
+    link.download = "Excel_modificado.xlsx";
+    link.href = blobURL;
+  });
+}
+
+inputWorksheet.addEventListener("change", loadExcel, false);
+// inputCategorias.addEventListener("change", loadWorksheetCategories, false);

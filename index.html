@@ -22,59 +22,52 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-4 m-5">
-          <div class="form-group">
+        <div class="col-12 m-5">
+          <p class="h4">Generador y normalizador de Excel.</p>
+          <p class="text-weight-light h6">
+            Esta función permite normalizar y configurar archivos
+            <i>Excel</i> que son enviados por los fabricantes.
+          </p>
+          <div class="form-group mt-5">
             <label for="exampleFormControlInput1"
               >Nombre del Distribuidor</label
             >
             <input
+              required
               type="text"
               class="form-control"
               id="distribuidor"
               placeholder="Distribuidor"
             />
-          </div>
-          <div class="form-group">
-            <label for="exampleFormControlInput1">Lista de fabricantes</label>
             <input
-              type="text"
-              class="form-control"
-              id="fabricantes"
-              placeholder="Fabricantes"
+              type="file"
+              name="myexcel"
+              class="myexcel my-4"
+              id="excelInput"
             />
-            <p>Ingresa la lista de fabricantes, separados por una coma</p>
-            <button class="btn btn-info" id="SendButton">Enviar</button>
           </div>
-          <input type="file" name="myexcel" class="myexcel" id="myexcel" />
+
+          <button class="btn btn-info mb-4" id="SendButton">Enviar</button>
 
           <br />
-          <p>
-            Una vez descargado el archivo, impórtalo en la sección de "Importar
-            Productos"
-          </p>
-          <a href="#" id="downloadLinkId">Descargar excel</a>
-        </div>
-      </div>
-      <div class="row">
-        <div class="container">
-          <div class="row">
-            <div class="col-12">
-              <p class="text-weight-bold h2">Añadir categorías</p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12">
-              <p class="h5 my-4">Excel para las categorias</p>
-              <label for="excelcategoria"></label>
-              <input
-                type="file"
-                name=""
-                class="excelcategoria"
-                id="excelcategoria"
-              />
-              <div class="btn btn-primary my-3">press me oniichan</div>
-            </div>
-          </div>
+
+          <ul class="list-group">
+            <!--grupo para habilitar / deshabilitar descarga -->
+            <li class="list-group-item disabled">
+              <div>
+                <p class="font-weight-light">
+                  Una vez descargado el archivo, impórtalo en la sección de
+                  "Importar Productos"
+                </p>
+
+                <button class="btn btn-primary" disabled>
+                  <a class="text-white" href="#" id="downloadLinkId"
+                    >Descargar nuevo Excel</a
+                  >
+                </button>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
