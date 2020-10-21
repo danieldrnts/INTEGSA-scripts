@@ -11,6 +11,7 @@ import "./styles.css";
 // Variables GLOBALES para la insercion de marca y submarca.
 let nombre_de_marca = "";
 let submarcas = [];
+let eliminatedRows = [];
 // Worksheet instance
 const workbook = new Workbook();
 workbook.creator = "Daniel";
@@ -29,18 +30,16 @@ document.querySelector("#SendButton").addEventListener("click", function () {
 // Method to add 'Submarca' and 'Fabricante' to all worksheets.
 function addFabricanteSubmarca() {
   let index = 0;
-  let indexCategories = 0;
+  // Call to add Categories
+  for (let k = 1; k <= workbook.worksheets.length; k++) {
+    handleCategories(k);
+  }
+  //
   // Iterate over every workbook's worksheet.
   for (let j = 1; j <= workbook.worksheets.length; j++) {
     fill_new_columns(j, index);
     index++;
   }
-  // Call to add Categories
-  for (let j = 1; j <= workbook.worksheets.length; j++) {
-    handleCategories(j, indexCategories);
-    indexCategories++;
-  }
-  //
   // finally, we download the worksheet.
   downloadsheet(workbook);
 }
@@ -50,7 +49,11 @@ function fill_new_columns(page, pos) {
   let marca = ["Marca"];
   let submarca = ["Submarca"];
 
-  for (let index = 0; index < workbook.getWorksheet(page).rowCount; index++) {
+  for (
+    let index = 0;
+    index < workbook.getWorksheet(page).rowCount - eliminatedRows[page];
+    index++
+  ) {
     marca.push(nombre_de_marca);
     submarca.push(submarcas[pos]);
   }
@@ -123,14 +126,16 @@ function handleCategories(pageNumber) {
     }
   });
 
-  assignCategories(categoriesFilter);
+  eliminatedRows[pageNumber] = categoriesFilter.length;
+  assignCategories(categoriesFilter, pageNumber);
+
   return true;
 }
 
 // Method to assign categories to the new spreedsheet
-function assignCategories(categories) {
+function assignCategories(categories, pageNumber) {
   let categories_final = ["Categoría"];
-  let worksheet_cat = workbook.getWorksheet(1);
+  let worksheet_cat = workbook.getWorksheet(pageNumber);
 
   // building the Array
   for (let index = 0; index < categories.length; index++) {
@@ -179,6 +184,7 @@ function downloadsheet(workbook_instance) {
     let link = document.querySelector("#downloadLinkId");
     link.download = "Excel_modificado.xlsx";
     link.href = blobURL;
+    alert("Excel listo");
   });
 }
 
