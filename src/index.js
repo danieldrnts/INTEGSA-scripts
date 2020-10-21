@@ -29,13 +29,20 @@ document.querySelector("#SendButton").addEventListener("click", function () {
 // Method to add 'Submarca' and 'Fabricante' to all worksheets.
 function addFabricanteSubmarca() {
   let index = 0;
+  let indexCategories = 0;
   // Iterate over every workbook's worksheet.
   for (let j = 1; j <= workbook.worksheets.length; j++) {
     fill_new_columns(j, index);
     index++;
   }
   // Call to add Categories
+  for (let j = 1; j <= workbook.worksheets.length; j++) {
+    handleCategories(j, indexCategories);
+    indexCategories++;
+  }
   //
+  // finally, we download the worksheet.
+  downloadsheet(workbook);
 }
 
 // Function para ingresar las columnas al nuevo excel
@@ -61,22 +68,21 @@ function loadExcel() {
       workbook.worksheets.forEach((element) => {
         submarcas.push(element.name);
       });
-      // console.log(submarcas);
     });
   });
 }
 
 // Methods to handle categories in spreedsheet.
-function handleCategories() {
+function handleCategories(pageNumber) {
   // Array de categorias y posiciones
   let categories = [];
   let categoriesFilter = [];
 
-  // Display the columns values
-  let page_1 = workbook_cat.getWorksheet(1);
+  // get current page of workbook.
+  let page = workbook.getWorksheet(pageNumber);
   let counter = 0;
 
-  page_1.eachRow(function (row, rowNumber) {
+  page.eachRow(function (row, rowNumber) {
     if (row.values.length === 2) {
       if (counter >= 1) {
         if (categories.length) {
@@ -99,7 +105,7 @@ function handleCategories() {
     }
     counter++;
 
-    if (rowNumber === page_1.rowCount) {
+    if (rowNumber === page.rowCount) {
       categories[categories.length - 1].children = counter;
     }
     // console.log("Row: " + rowNumber + " Value: " + row.values);
@@ -111,23 +117,20 @@ function handleCategories() {
     }
   });
 
-  page_1.eachRow(function (row, rowNumber) {
+  page.eachRow(function (row, rowNumber) {
     while (row.values.length === 2) {
-      page_1.spliceRows(rowNumber, 1);
+      page.spliceRows(rowNumber, 1);
     }
   });
 
-  // downloadsheet(workbook_cat);
-  // console.log(categories);
-  // console.log(categoriesFilter);
-
   assignCategories(categoriesFilter);
+  return true;
 }
 
 // Method to assign categories to the new spreedsheet
 function assignCategories(categories) {
   let categories_final = ["Categoría"];
-  let worksheet_cat = workbook_cat.getWorksheet(1);
+  let worksheet_cat = workbook.getWorksheet(1);
 
   // building the Array
   for (let index = 0; index < categories.length; index++) {
@@ -137,37 +140,34 @@ function assignCategories(categories) {
   }
 
   worksheet_cat.spliceColumns(1, 0, categories_final);
-  // console.log(categories_final);
-
-  downloadsheet(workbook_cat);
+  return true;
 }
 
 // Method to remove categories rows
-function removeCategories(shorksheet_remove_instance, categories) {
-  let flag = true;
-  for (let index = 0; index < 4; index++) {
-    if (flag) {
-      shorksheet_remove_instance.spliceRows(categories[index].start, 1);
-      flag = false;
-    } else {
-      shorksheet_remove_instance.spliceRows(categories[index].start - 1, 1);
-    }
-  }
-  alert("Excel Terminado");
-  // downloadsheet(workbook_cat);
-}
+// function removeCategories(shorksheet_remove_instance, categories) {
+//   let flag = true;
+//   for (let index = 0; index < 4; index++) {
+//     if (flag) {
+//       shorksheet_remove_instance.spliceRows(categories[index].start, 1);
+//       flag = false;
+//     } else {
+//       shorksheet_remove_instance.spliceRows(categories[index].start - 1, 1);
+//     }
+//   }
+//   alert("Excel Terminado");
+// }
 
-function loadWorksheetCategories() {
-  const arryBuffer = new Response(this.files[0]).arrayBuffer();
-  arryBuffer.then(function (data) {
-    // worksheetGlobal = 3;
-    workbook_cat.xlsx.load(data).then(function () {
-      alert("Work sheet categorías loaded");
-      // mOVER ESTE METODO AL SEGUNDO PLANO.
-      // handleCategories();
-    });
-  });
-}
+// function loadWorksheetCategories() {
+//   const arryBuffer = new Response(this.files[0]).arrayBuffer();
+//   arryBuffer.then(function (data) {
+//     // worksheetGlobal = 3;
+//     workbook_cat.xlsx.load(data).then(function () {
+//       alert("Work sheet categorías loaded");
+//       // mOVER ESTE METODO AL SEGUNDO PLANO.
+//       // handleCategories();
+//     });
+//   });
+// }
 
 // download final worksheet.
 function downloadsheet(workbook_instance) {
