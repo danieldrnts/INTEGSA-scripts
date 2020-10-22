@@ -12,7 +12,7 @@ import "./styles.css";
 let nombre_de_marca = "";
 let submarcas = [];
 let eliminatedRows = [];
-// let blankRows = [];
+let blankRows = [];
 // Worksheet instance
 const workbook = new Workbook();
 workbook.creator = "Daniel";
@@ -41,8 +41,9 @@ function addFabricanteSubmarca() {
     fill_new_columns(j, index);
     index++;
   }
+  removeBlankRows();
   // finally, we download the worksheet.
-  downloadsheet(workbook);
+  downloadsheet();
 }
 
 // Function para ingresar las columnas al nuevo excel
@@ -80,7 +81,8 @@ function handleCategories(pageNumber) {
   // get current page of workbook.
   let page = workbook.getWorksheet(pageNumber);
   let counter = 0;
-  // blankRows[pageNumber] = 0;
+  let countBlankRows = 0;
+  blankRows[pageNumber - 1] = 0;
   // let corningArray = [];
 
   page.eachRow({ includeEmpty: true }, function (row, rowNumber) {
@@ -93,7 +95,8 @@ function handleCategories(pageNumber) {
     if (row.values.length === 0) {
       console.log("inside: " + rowNumber);
       page.spliceRows(rowNumber, 1);
-      // blankRows[pageNumber - 1] = blankRows[pageNumber - 1]++;
+      countBlankRows++;
+      blankRows[pageNumber - 1] = countBlankRows;
     }
     if (row.values.length === 2) {
       if (counter >= 1) {
@@ -156,7 +159,8 @@ function assignCategories(categories, pageNumber) {
   }
 
   worksheet_cat.spliceColumns(1, 0, categories_final);
-  console.log(categories_final);
+  // console.log(categories_final);
+  console.log(blankRows);
 
   eliminatedRows[pageNumber - 1] = categories_final.length;
   return true;
@@ -189,21 +193,21 @@ function assignCategories(categories, pageNumber) {
 // }
 
 // Fuction to clean blank rows from worksheet.
-// function removeBlankRows() {
-//   for (let index = 1; index <= workbook.worksheets.length; index++) {
-//     let page = workbook.getWorksheet(index);
-//     page.eachRow(function (row, rowNumber) {
-//       if (row.values.length === 0) {
-
-//       }
-//     })
-
-//   }
-// }
+function removeBlankRows() {
+  for (let index = 1; index <= workbook.worksheets.length; index++) {
+    let page = workbook.getWorksheet(index);
+    page.eachRow(function (row, rowNumber) {
+      if (row.values.length === 4) {
+        page.spliceRows(rowNumber, 1);
+      }
+    });
+  }
+  // downloadsheet();
+}
 
 // download final worksheet.
-function downloadsheet(workbook_instance) {
-  workbook_instance.xlsx.writeBuffer().then(function (data) {
+function downloadsheet() {
+  workbook.xlsx.writeBuffer().then(function (data) {
     let blob = new Blob([data], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     });
