@@ -48,12 +48,10 @@ function addFabricanteSubmarca() {
 function fill_new_columns(page, pos) {
   let marca = ["Marca"];
   let submarca = ["Submarca"];
+  console.log("whaa");
+  console.log(eliminatedRows);
 
-  for (
-    let index = 0;
-    index < workbook.getWorksheet(page).rowCount - eliminatedRows[page];
-    index++
-  ) {
+  for (let index = 0; index < eliminatedRows[page - 1]; index++) {
     marca.push(nombre_de_marca);
     submarca.push(submarcas[pos]);
   }
@@ -77,10 +75,12 @@ function loadExcel() {
 
 // Methods to handle categories in spreedsheet.
 function handleCategories(pageNumber) {
+  console.log("pagenumber");
+  console.log(pageNumber);
+
   // Array de categorias y posiciones
   let categories = [];
   let categoriesFilter = [];
-
   // get current page of workbook.
   let page = workbook.getWorksheet(pageNumber);
   let counter = 0;
@@ -113,20 +113,20 @@ function handleCategories(pageNumber) {
     }
     // console.log("Row: " + rowNumber + " Value: " + row.values);
   });
-
   categories.forEach((element) => {
     if (element.children !== 0) {
       categoriesFilter.push(element);
     }
   });
-
   page.eachRow(function (row, rowNumber) {
     while (row.values.length === 2) {
       page.spliceRows(rowNumber, 1);
     }
   });
 
-  eliminatedRows[pageNumber] = categoriesFilter.length;
+  // console.log(categoriesFilter.length);
+  // eliminatedRows[pageNumber - 1] = categoriesFilter.length;
+
   assignCategories(categoriesFilter, pageNumber);
 
   return true;
@@ -145,6 +145,7 @@ function assignCategories(categories, pageNumber) {
   }
 
   worksheet_cat.spliceColumns(1, 0, categories_final);
+  eliminatedRows[pageNumber - 1] = categories_final.length;
   return true;
 }
 
