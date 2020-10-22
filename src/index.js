@@ -12,6 +12,7 @@ import "./styles.css";
 let nombre_de_marca = "";
 let submarcas = [];
 let eliminatedRows = [];
+// let blankRows = [];
 // Worksheet instance
 const workbook = new Workbook();
 workbook.creator = "Daniel";
@@ -48,10 +49,8 @@ function addFabricanteSubmarca() {
 function fill_new_columns(page, pos) {
   let marca = ["Marca"];
   let submarca = ["Submarca"];
-  console.log("whaa");
-  console.log(eliminatedRows);
 
-  for (let index = 0; index < eliminatedRows[page - 1]; index++) {
+  for (let index = 0; index < eliminatedRows[page - 1] - 1; index++) {
     marca.push(nombre_de_marca);
     submarca.push(submarcas[pos]);
   }
@@ -75,17 +74,27 @@ function loadExcel() {
 
 // Methods to handle categories in spreedsheet.
 function handleCategories(pageNumber) {
-  console.log("pagenumber");
-  console.log(pageNumber);
-
   // Array de categorias y posiciones
   let categories = [];
   let categoriesFilter = [];
   // get current page of workbook.
   let page = workbook.getWorksheet(pageNumber);
   let counter = 0;
+  // blankRows[pageNumber] = 0;
+  // let corningArray = [];
 
-  page.eachRow(function (row, rowNumber) {
+  page.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+    // if (pageNumber === 2) {
+    //   let corningObject = {};
+    //   corningObject.name = row.values;
+    //   corningObject.size = row.values.length;
+    //   corningArray.push(corningObject);
+    // }
+    if (row.values.length === 0) {
+      console.log("inside: " + rowNumber);
+      page.spliceRows(rowNumber, 1);
+      // blankRows[pageNumber - 1] = blankRows[pageNumber - 1]++;
+    }
     if (row.values.length === 2) {
       if (counter >= 1) {
         if (categories.length) {
@@ -113,6 +122,8 @@ function handleCategories(pageNumber) {
     }
     // console.log("Row: " + rowNumber + " Value: " + row.values);
   });
+  // console.log(corningArray);
+
   categories.forEach((element) => {
     if (element.children !== 0) {
       categoriesFilter.push(element);
@@ -145,6 +156,8 @@ function assignCategories(categories, pageNumber) {
   }
 
   worksheet_cat.spliceColumns(1, 0, categories_final);
+  console.log(categories_final);
+
   eliminatedRows[pageNumber - 1] = categories_final.length;
   return true;
 }
@@ -173,6 +186,19 @@ function assignCategories(categories, pageNumber) {
 //       // handleCategories();
 //     });
 //   });
+// }
+
+// Fuction to clean blank rows from worksheet.
+// function removeBlankRows() {
+//   for (let index = 1; index <= workbook.worksheets.length; index++) {
+//     let page = workbook.getWorksheet(index);
+//     page.eachRow(function (row, rowNumber) {
+//       if (row.values.length === 0) {
+
+//       }
+//     })
+
+//   }
 // }
 
 // download final worksheet.
